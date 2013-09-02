@@ -10,9 +10,22 @@
 </head>
 <body>
     <script>
-        d3.csv("titanic.csv", function (data) {
-            testData = data;
-            console.log(data);
+        $(document).ready(function () {
+            var url = 'https://rawgithub.com/roylanceMichael/d3_titanic_visualizations/master/titanic.json?callback=?';
+            $.ajax({
+                type: 'GET',
+                url: url,
+                async: false,
+                jsonpCallback: 'jsonCallBack',
+                contentType: "application/json",
+                dataType: 'jsonp',
+                success: function (json) {
+                    console.dir(json.data);
+                },
+                error: function (e) {
+                    console.log(e.message);
+                }
+            });
         });
     </script>
 </body>
