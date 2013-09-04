@@ -15,6 +15,11 @@
             <h4 data-bind="text: message"></h4>
         </div>
         
+        <!-- graph location -->
+        <div class="row">
+            <div id="graphDisplay"></div>
+        </div>
+
         <!-- titanic data -->
         <div class="row">
             <div class="bs-table-scrollable">
@@ -63,6 +68,14 @@
     </div> 
 
     <script>
+        /* Our graphing code here */
+        var graph = function(viewModel) {
+            
+        };
+
+
+        /* end graphing code */
+
         var viewModel = {
             titanicData: ko.observableArray(),
             message: ko.observable("loading Titanic Passenger data...")
@@ -95,6 +108,8 @@
                 viewModel.titanicData.push(jsonData[i]);
             }
             viewModel.message("Titanic Passenger List");
+
+            graph(viewModel);
         };
     </script>
 </body>

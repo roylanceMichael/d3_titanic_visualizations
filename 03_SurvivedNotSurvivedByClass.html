@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
@@ -14,15 +14,12 @@
         <div class="row">
             <h4 data-bind="text: message"></h4>
         </div>
-
-        <div class="row" id="didNotSurviveGraphDisplay">
-
-        </div>
-
-        <div class="row" id="survivedGraphDisplay">
-
-        </div>
         
+        <!-- graph location -->
+        <div class="row">
+            <div id="graphDisplay"></div>
+        </div>
+
         <!-- titanic data -->
         <div class="row">
             <div class="bs-table-scrollable">
@@ -71,6 +68,60 @@
     </div> 
 
     <script>
+        /* Our graphing code here */
+        var graph = function(viewModel) {
+            var data = viewModel.titanicData();
+            // width and height
+            var w = 1200;
+            var h = 800;
+            var padding = 30;
+
+            // let's show two circles, one with 
+            var circles = [];
+
+            var surviveCount = 0;
+            var didNotSurviveCount = 0;
+            for(var i = 0; i < data.length; i++) {
+                if(data[i].Survived == 1) {
+                    surviveCount = surviveCount + 1;
+                } else {
+                    didNotSurviveCount = didNotSurviveCount + 1;
+                }
+            }
+            
+            var surviveGroup = { x: 400, y: 400, fill: "green", amount: surviveCount };
+            var didNotSurviveGroup = { x: 600, y: 400, fill: "red", amount: didNotSurviveCount };
+
+            // create SVG element
+            var svg = d3.select("#graphDisplay")
+                    .append("svg")
+                    .attr("width", w)
+                    .attr("height", h);
+
+            // create circles
+            svg.selectAll("circle")
+                 .data([surviveGroup, didNotSurviveGroup ])
+                 .enter()
+                 .append("circle")
+                 .attr("cx", function (d) {
+                    return d.x;
+                 })
+                 .attr("cy", function (d) {
+                    return d.y;
+                 })
+                 .attr("r", function (d) {
+                    return d.amount / 10;
+                 })
+                .style("fill", "black")
+                .append("title")
+                .text(function(d) {
+                    return d.amount;
+                });
+        };
+
+
+        /* end graphing code */
+
         var viewModel = {
             titanicData: ko.observableArray(),
             message: ko.observable("loading Titanic Passenger data...")
@@ -104,84 +155,7 @@
             }
             viewModel.message("Titanic Passenger List");
 
-            //Width and height
-            var w = 1150;
-            var h = 400;
-            var barPadding = 1;
-
-            //Create SVG element
-            var survivedArea = d3.select("#survivedGraphDisplay")
-                        .append("svg")
-                        .attr("width", w)
-                        .attr("height", h);
-
-            var didNotSurviveArea = d3.select("#didNotSurviveGraphDisplay")
-                        .append("svg")
-                        .attr("width", w)
-                        .attr("height", h);
-
-            var titanicDataLength = viewModel.titanicData().length;
-            var titanicNestedData = d3.nest()
-                                        .key(function(d) {
-                                            return d.Survived;
-                                        })
-                                        .sortKeys(d3.ascending)
-                                        .entries(viewModel.titanicData());
-            
-            var didNotSurvive = titanicNestedData[0]["values"];
-            didNotSurviveArea.selectAll("rect")
-               .data(didNotSurvive)
-               .enter()
-               .append("rect")
-               .attr("x", function(d, i) {
-                    return i * (w / titanicDataLength);
-               })
-               .attr("y", function(d) {
-                    return h - (d.Fare);
-               })
-               .attr("width", w / titanicDataLength)
-               .attr("height", function(d) {
-                    return d.Fare;
-               })
-               .attr("fill", function(d) {
-                    var survived = d.Survived == 1 ? 200 : 0;
-
-                    return "rgb(0, 0, " + survived + ")";
-               })
-               .style("cursor", "hand")
-               .append("title")
-               .text(function(d) {
-                    var survived = d.Survived == 1 ? "survived" : "did not survive";
-                    return d.Name + " - " + d.Fare + " - " + survived;
-               });
-
-            var survived = titanicNestedData[1]["values"];
-
-            survivedArea.selectAll("rect")
-               .data(survived)
-               .enter()
-               .append("rect")
-               .attr("x", function(d, i) {
-                    return i * (w / titanicDataLength);
-               })
-               .attr("y", function(d) {
-                    return h - (d.Fare);
-               })
-               .attr("width", w / titanicDataLength)
-               .attr("height", function(d) {
-                    return d.Fare;
-               })
-               .attr("fill", function(d) {
-                    var survived = d.Survived == 1 ? 200 : 0;
-
-                    return "rgb(0, 0, " + survived + ")";
-               })
-               .style("cursor", "hand")
-               .append("title")
-               .text(function(d) {
-                    var survived = d.Survived == 1 ? "survived" : "did not survive";
-                    return d.Name + " - " + d.Fare + " - " + survived;
-               });
+            graph(viewModel);
         };
     </script>
 </body>
