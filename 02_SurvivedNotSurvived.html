@@ -89,8 +89,8 @@
                 }
             }
             
-            var surviveGroup = { x: 400, y: 400, fill: "yellow", amount: surviveCount };
-            var didNotSurviveGroup = { x: 600, y: 400, fill: "black", amount: didNotSurviveCount };
+            var surviveGroup = { x: 400, y: 400, fill: "yellow", amount: surviveCount, label: "survived" };
+            var didNotSurviveGroup = { x: 600, y: 400, fill: "black", amount: didNotSurviveCount, label: "did not survive" };
 
             // create SVG element
             var svg = d3
@@ -134,6 +134,20 @@
                 .text(function(d) {
                     return d.amount;
                 });
+
+            // let's add text as well
+            svg
+            .selectAll("text")
+            .data([surviveGroup, didNotSurviveGroup])
+            .enter()
+            .append("text")
+            .attr("x", function(d) {
+                return d.x;
+            })
+            .attr("y", function(d) {
+                return d.y - 100;
+            })
+            .text(function(d) { return d.label });
         };
 
 
